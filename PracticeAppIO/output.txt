@@ -1,0 +1,1 @@
+The caluclated average from input.txt is: 25
