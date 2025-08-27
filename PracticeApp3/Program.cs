@@ -43,7 +43,7 @@ namespace PracticeApp3
             var stopwatch = Stopwatch.StartNew();
 
             // Code to measure
-            Console.WriteLine(IsAnagram("rat", "car"));
+            Console.WriteLine(MyAtoi("042"));
 
             // Stop timing
             stopwatch.Stop();
@@ -711,6 +711,190 @@ namespace PracticeApp3
         //        if (freq[i] != 0) return false;
         //    }
         //    return true;
+        //}
+
+        //Given a string s, return true if it is a palindrome, or false otherwise (after removing all non-alphanumeric chars)
+        //Decent solution, Runtime (~6 ms) Memory (7300 bytes)
+        public static bool IsPalindrome(string s)
+        {
+            string sLow = s.ToLower();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < sLow.Length; i++)
+            {
+                if (char.IsLetterOrDigit(sLow[i]))
+                {
+                    sb.Append(sLow[i]);
+                }
+            }
+            if (sb.ToString() == new string(sb.ToString().Reverse().ToArray()))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        //Better solution for above, Runtime (~0-1 ms) Memory (6984 bytes)
+        //public static bool IsPalindrome(string s)
+        //{
+        //    int len = s.Length;
+        //    StringBuilder sb = new StringBuilder();
+        //    for (int i = 0; i < len; i++)
+        //    {
+        //        if (('0' <= s[i] && s[i] <= '9') || ('a' <= s[i] && s[i] <= 'z')) sb.Append(s[i]);
+        //        if ('A' <= s[i] && s[i] <= 'Z') sb.Append((char)(s[i] + 32));
+        //    }
+
+        //    for (int i = 0; i < sb.Length / 2; i++)
+        //    {
+        //        if (sb[i] != sb[sb.Length - 1 - i]) return false;
+        //    }
+        //    return true;
+        //}
+
+        //Convert a string to a 32-bit signed integer. Ignore leading whitespace, determine sign by presence of '-' or '+' at start, defaulting to positive
+        //Skip leading zeros and read all following digits, stopping if a non-digit character is encountered or end of string. If no digits read, default to 0.
+        //If out of 32-bit range, round to nearest valid signed value
+        //Decent solution, Runtime (~1ms) Memory (7512 bytes)
+        public static int MyAtoi(string s)
+        {
+            StringBuilder sb = new StringBuilder("0");
+            int parsedInt = 0;
+            bool isNegative = false;
+            bool signChecked = false;
+            bool nonZeroSeen = false;
+
+            bool isNumber(char c)
+            {
+                return (c >= '0' && c <= '9');
+            }
+            bool isNonZero(char c)
+            {
+                return (c > '0' && c <= '9');
+            }
+            try
+            {
+                for (int i = 0; i < s.Length; i++)
+                {
+                    if (!signChecked)               //First step of parsing if sign hasn't been seen (or a digit)
+                    {                               //Ignore white space, check for sign (set flag if found), stop if other symbols are encountered
+                        if (s[i] == ' ')
+                        {
+                            continue;
+                        }
+                        if (s[i] == '-')
+                        {
+                            isNegative = true;
+                            signChecked = true;
+                            continue;
+                        }
+                        if (s[i] == '+')
+                        {
+                            signChecked = true;
+                            continue;
+                        }
+                        if (!isNumber(s[i]))
+                        {
+                            break;
+                        }
+                    }
+                    if (!nonZeroSeen)               //Second step of parsing if non-zero digit hasn't been seen 
+                    {                               //Check for digit, if non-zero, set sb to s[i] and flag nonZeroSeen / signChecked
+                        if (isNumber(s[i]))         //If it is number, but is zero, flag signChecked
+                        {                           //Stop if other symbols are encountered
+                            if (isNonZero(s[i]))
+                            {
+                                sb[0] = s[i];
+                                signChecked = true;
+                                nonZeroSeen = true;
+                                continue;
+                            }
+                            else
+                            {
+                                signChecked = true;
+                                continue;
+                            }
+                        }
+                        if (signChecked && !isNumber(s[i]))
+                        {
+                            break;
+                        }
+                    }
+                    else                            //Last step of parsing if non-zero digits have already been seen
+                    {                               //Check for digit, and add to sb
+                        if (isNumber(s[i]))         //Stop if other symbols are encountered
+                        {
+                            sb.Append(s[i]);
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                //Assign value from stringbuilder and sign it if negative
+                parsedInt = isNegative ? -int.Parse(sb.ToString()) : int.Parse(sb.ToString());
+            }
+            catch (OverflowException e)             //Handle overflows
+            {
+                if (isNegative)
+                {
+                    parsedInt = int.MinValue;
+                }
+                else
+                {
+                    parsedInt = int.MaxValue;
+                }
+            }
+
+            return parsedInt;
+        }
+
+        //Comparable, but less verbose solution than above Runtime (~0-1 ms) Memory (7496 bytes)
+        //public static int MyAtoi(string s)
+        //{
+        //    if (string.IsNullOrEmpty(s)) return 0;
+
+        //    int i = 0, n = s.Length;
+        //    long result = 0; // use long to detect overflow
+        //    int sign = 1;
+
+        //    // 1. Ignore leading whitespaces
+        //    while (i < n && s[i] == ' ')
+        //    {
+        //        i++;
+        //    }
+
+        //    // If string only had spaces
+        //    if (i >= n) return 0;
+
+        //    // 2. Handle sign
+        //    if (s[i] == '+' || s[i] == '-')
+        //    {
+        //        sign = (s[i] == '-') ? -1 : 1;
+        //        i++;
+        //    }
+
+        //    // 3. Convert digits
+        //    while (i < n && char.IsDigit(s[i]))
+        //    {
+        //        int digit = s[i] - '0';
+        //        result = result * 10 + digit;
+
+        //        // 4. Handle overflow immediately
+        //        if (sign == 1 && result > Int32.MaxValue)
+        //        {
+        //            return Int32.MaxValue;
+        //        }
+        //        if (sign == -1 && -result < Int32.MinValue)
+        //        {
+        //            return Int32.MinValue;
+        //        }
+
+        //        i++;
+        //    }
+
+        //    return (int)(sign * result);
         //}
     }
 }
