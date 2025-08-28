@@ -10,6 +10,23 @@ namespace PracticeApp3
 {
     internal class Program
     {
+        //public class ListNode
+        //{
+        //    public int val;
+        //    public ListNode next;
+        //    public ListNode(int x) { val = x; }
+        //}
+        public class ListNode
+        {
+            public int val;
+            public ListNode next;
+            public ListNode(int val = 0, ListNode next = null)
+            {
+                this.val = val;
+                this.next = next;
+            }
+        }
+
         static void Main(string[] args)
         {
             //int[] nums = { 3, 2, 4, };
@@ -33,6 +50,10 @@ namespace PracticeApp3
             //ReverseString(str);
             //Array.ForEach(str, i => Console.Write(i.ToString() + ", "));
 
+            //Put any prerequisite code here
+            ListNode head = BuildSinglyLinkedList(new int[] { 1 });
+            PrintLinkedList(head);
+
             // Clean up and get initial memory
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -43,7 +64,7 @@ namespace PracticeApp3
             var stopwatch = Stopwatch.StartNew();
 
             // Code to measure
-            Console.WriteLine(MyAtoi("042"));
+            head = RemoveNthFromEnd(head, 2);
 
             // Stop timing
             stopwatch.Stop();
@@ -53,6 +74,9 @@ namespace PracticeApp3
             GC.WaitForPendingFinalizers();
             GC.Collect();
             long memoryAfter = GC.GetTotalMemory(true);
+
+            //Put any postrequisite code here
+            PrintLinkedList(head);
 
             // Output results (these allocations are outside the measured block)
             Console.WriteLine($"Elapsed time: {stopwatch.ElapsedMilliseconds} ms");
@@ -896,5 +920,222 @@ namespace PracticeApp3
 
         //    return (int)(sign * result);
         //}
+
+        //Given two strings needle and haystack, return the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.
+        //Good solution, Runtime (~0 ms) Memory (7496 bytes)
+        public static int StrStr(string haystack, string needle)
+        {
+            int matchIndex = -1;
+
+            for (int i = 0; i < haystack.Length; i++)
+            {
+                if (needle.Length > haystack.Length)
+                {
+                    break;
+                }
+                if (haystack[i] == needle[0])
+                {
+                    for (int j = 0; j < needle.Length; j++)
+                    {
+                        if (i + j >= haystack.Length || haystack[i + j] != needle[j])
+                        {
+                            break;
+                        }
+                        if (j == needle.Length - 1)
+                        {
+                            matchIndex = i;
+                            break;
+                        }
+
+                    }
+                }
+                if (matchIndex != -1)
+                {
+                    break;
+                }
+            }
+            return matchIndex;
+        }
+
+        //Slightly more efficient, and much cleaner solution than above. Runtime (~0 ms) Memory (7496 bytes)
+        //public static int StrStr(string haystack, string needle)
+        //{
+        //    for (int i = 0; i <= haystack.Length - needle.Length; i++)
+        //    {
+        //        string sub = haystack.Substring(i, needle.Length);
+        //        if (sub == needle)
+        //        {
+        //            return i;
+
+        //        }
+        //    }
+        //    return -1;
+        //}
+
+        //Find the longest common prefix string amongst an array of strings. If there is no common prefix, return an empty string
+        //Good solution, Runtime (~0 ms) Memory (6936 bytes)
+        public static string LongestCommonPrefix(string[] strs)
+        {
+            StringBuilder sb = new StringBuilder("");
+            int charIndex = 0;
+            while (true)
+            {
+                char firstChar = ' ';
+                for (int i = 0; i < strs.Length; i++)
+                {
+                    if (charIndex >= strs[i].Length)
+                    {
+                        return sb.ToString();
+                    }
+                    if (i == 0)
+                    {
+                        firstChar = strs[i][charIndex];
+                    }
+                    if (strs[i][charIndex] != firstChar)
+                    {
+                        return sb.ToString();
+                    }
+                }
+                sb.Append(firstChar);
+                charIndex++;
+            }
+        }
+
+        //Runtime equivalent but more concise solution for above. Runtime (~0 ms) Memory (7960 bytes) (Uses more memory due to repeated substrings)
+        //public static string LongestCommonPrefix(string[] strs)
+        //{
+        //    if (strs.Length == 0 || strs == null)
+        //        return "";
+        //    var prefix = strs[0];
+        //    for (int i = 1; i < strs.Length; i++)
+        //    {
+        //        while (!strs[i].StartsWith(prefix))
+        //        {
+        //            prefix = prefix.Substring(0, prefix.Length - 1);
+
+        //            if (prefix == "")
+        //                break;
+        //        }
+        //    }
+        //    return prefix;
+        //}
+
+        //*******************************
+        //******Linked List Section******
+        //*******************************
+
+        //This is a function of my own design for building linked lists to allow testing code locally
+        public static ListNode BuildSinglyLinkedList(int[] arr)
+        {
+            ListNode head = null;
+            int count = 0;
+            if (arr != null)
+            {
+                head = new ListNode(arr[0]);
+                count++;
+            }
+
+            void build(ListNode node)
+            {
+                if (count < arr.Length)
+                {
+                    node.next = new ListNode(arr[count]);
+                    count++;
+                    build(node.next);
+                }
+            }
+
+            build(head);
+
+            return head;
+        }
+
+        //Also a function of my own design for testing linked list traversal
+        public static void PrintLinkedList(ListNode head)
+        {
+            void print(ListNode node)
+            {
+                if (node != null)
+                {
+                    Console.Write($"{node.val}, ");
+                    if (node.next != null)
+                    {
+                        print(node.next);
+                    }
+                }
+                
+            }
+
+            print(head);
+            Console.Write("\r\n");
+        }
+
+
+        //Given a singly-linked list 'head', delete a node 'node' in it.
+        //You are given the node to be deleted 'node'. You will not be given access to the first node of 'head'.
+        //All the values of the linked list are unique, and it is guaranteed that the given node node is not the last node in the linked list.
+        //Solution works, but the recursion was entirely unnecessary. Runtime (~0ms) Memory (12 bytes)
+        public static void DeleteNode(ListNode node)
+        {
+            void shiftLeft(ListNode n)
+            {
+                if (n.next != null && n.next.next != null)
+                {
+                    n.val = n.next.val;
+                    shiftLeft(n.next);
+                }
+                else
+                {
+                    n.val = n.next.val;
+                    n.next = null;
+                }
+            }
+
+            shiftLeft(node);
+        }
+
+        //Better solution for above. Runtime (~0ms) Memory (12 bytes) (Would see performance difference with larger input size)
+        //public static void DeleteNode(ListNode node)
+        //{
+        //    node.val = node.next.val;
+        //    node.next = node.next.next;
+        //}
+
+        //Given the head of a linked list, remove the nth node from the end of the list and return its head.
+        public static ListNode RemoveNthFromEnd(ListNode head, int n)
+        {
+            ListNode startNode = head;
+            while (true)
+            {
+                ListNode pointerNode = startNode;
+                for (int i = 0; i < n; i++)
+                {
+                    if (pointerNode.next == null)
+                    {
+                        if (startNode.next != null)
+                        {
+                            startNode.val = startNode.next.val;
+                            startNode.next = startNode.next.next;
+                        }
+                        else if (startNode == head)
+                        {
+                            head = null;
+                        }
+                        else
+                        {
+                            startNode = null;
+                        }
+                        goto end;
+                    }
+                    else
+                    {
+                        pointerNode = pointerNode.next;
+                    }
+                }
+                startNode = startNode.next;
+            }
+            end:
+            return head;
+        }
     }
 }
